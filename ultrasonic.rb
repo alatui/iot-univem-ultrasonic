@@ -16,7 +16,7 @@ client = MQTT::Client.connect('mqtt://test.mosquitto.org')
 client.connect()
 
 while (i = sp.gets.chomp) do
-  data = JSON.generate({ date: DateTime.now.strftime('%s'), value: i })
+  data = JSON.generate({ date: DateTime.now.strftime('%Q'), value: i })
   client.publish('iot-univem/ulrasonic_semcafe', data)
   puts data
 end

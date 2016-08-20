@@ -3,13 +3,98 @@
 <head>
 <meta charset="utf-8">
 <title>Arduino - Telimetria - Ultrasonic</title>
-<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
-
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
 <script>
+    $(document).ready(function () {
+
+
+
+        Highcharts.setOptions({
+        global : {
+            useUTC : false
+        }
+    });
+
+    // Create the chart
+    $('#container').highcharts('StockChart', {
+        chart : {
+            events : {
+                load : function () {
+                    //window.chart_ultrasonic = this;
+                    // set up the updating of the chart each second
+                    window.chart_ultrasonic_series = this.series[0];
+                    /*setInterval(function () {
+                        var x = (new Date()).getTime(), // current time
+                            y = Math.round(Math.random() * 100);
+                        series.addPoint([x, y], true, true);
+                    }, 1000);*/
+                }
+            }
+        },
+
+        rangeSelector: {
+            buttons: [{
+                count: 1,
+                type: 'minute',
+                text: '1M'
+            }, {
+                count: 5,
+                type: 'minute',
+                text: '5M'
+            }, {
+                type: 'all',
+                text: 'All'
+            }],
+            inputEnabled: false,
+            selected: 0
+        },
+
+        title : {
+            text : 'Ultrasonic - Data'
+        },
+
+        exporting: {
+            enabled: false
+        },
+
+        series : [{
+            name : 'Random data',
+            data : (function () {
+                // generate an array of random data
+                var data = [], time = (new Date()).getTime(), i;
+
+                for (i = -49; i <= 0; i += 1) {
+                    data.push([
+                        time + i * 1000,
+                        Math.round(Math.random() * 100)
+                    ]);
+                }
+                return data;
+            }())
+        }]
+    });
+
+        var socket = io();
+        socket.on('data_ultrasonic', function(msg){
+            var data = JSON.parse(msg);
+            console.log(data.value);
+            //chart_ultrasonic.series.addPoint([data.date, data.value], true, true);
+            //chart_ultrasonic_series.addPoint([data.date, data.value], true, true);
+            var x = (new Date()).getTime(); // current time
+            chart_ultrasonic_series.addPoint([data.date*1, data.value*1], true, true);
+        });
+
+
+
+
+    });
 
 </script>
 </body>
